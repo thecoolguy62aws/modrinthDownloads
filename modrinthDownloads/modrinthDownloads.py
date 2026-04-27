@@ -109,6 +109,6 @@ def main(stdscr):
 
             print_center_top(stdscr, f"Viewing: {username}")
             print_center_one_up(stdscr, f"Live Downloads:")
-            print_bold_center(stdscr, f"{str(downloads)}")
+            print_bold_center(stdscr, f"{downloads:,}")
             stdscr.refresh()
         time.sleep(10)
