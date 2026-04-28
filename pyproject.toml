@@ -10,6 +10,7 @@ description = "A text user interface to see Modrinth users' downloads."
 
 [project.scripts]
 modrinthDownloads = "modrinthDownloads.__main__:start"
+modrinthdownloads = "modrinthDownloads.__main__:start"
 
 [build-system]
 requires = ["setuptools>=61.0"]
