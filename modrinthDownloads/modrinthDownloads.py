@@ -73,53 +73,58 @@ def request_thread_task(username):
     response = requests.get(f"https://api.modrinth.com/v2/user/{username}/projects", headers=headers)
 
 def main(stdscr):
-    global response
-    response = None
-    
-    stdscr.nodelay(True)
-    stdscr.clear()
-    
-    curses.start_color()
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    stdscr.bkgd(' ', curses.color_pair(1))
-    stdscr.refresh()
-    
-    username = get_modrinth_user(stdscr)
-    stdscr.clear()
-    stdscr.refresh()
-    
-    last_update_time = time.perf_counter() - 10
-    
-    while True:
-        height, width = stdscr.getmaxyx()
-        message = "Press Q to quit"
-        message_y = height - 1
-        message_x = width - len(message)
-        try:
-            stdscr.addstr(message_y, message_x, message)
-        except curses.error:
-            pass
+    try:
+        global response
+        response = None
+        
+        stdscr.nodelay(True)
+        stdscr.clear()
+        
+        curses.start_color()
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        stdscr.bkgd(' ', curses.color_pair(1))
         stdscr.refresh()
-        if stdscr.getch() == ord('q'):
-            curses.endwin()
-            os._exit(0)
         
-        current_time = time.perf_counter()
+        username = get_modrinth_user(stdscr)
+        stdscr.clear()
+        stdscr.refresh()
         
-        if response != None:
-            if response.status_code == 200:
-                response_data = response.json()
-                
-                downloads = 0
-                for item in response_data:
-                    downloads += item["downloads"]
+        last_update_time = time.perf_counter() - 10
+        
+        while True:
+            height, width = stdscr.getmaxyx()
+            message = "Press Q to quit"
+            message_y = height - 1
+            message_x = width - len(message)
+            try:
+                stdscr.addstr(message_y, message_x, message)
+            except curses.error:
+                pass
+            stdscr.refresh()
+            if stdscr.getch() == ord('q'):
+                curses.endwin()
+                os._exit(0)
+            
+            current_time = time.perf_counter()
+            
+            if response != None:
+                if response.status_code == 200:
+                    response_data = response.json()
+                    
+                    downloads = 0
+                    for item in response_data:
+                        downloads += item["downloads"]
 
-                print_center_top(stdscr, f"Viewing: {username}")
-                print_center_one_up(stdscr, f"Live Downloads:")
-                print_bold_center(stdscr, f"{downloads:,}")
-                stdscr.refresh()
-            response = None
-        if (current_time - last_update_time) >= 10:
-            new_thread = threading.Thread(target=request_thread_task, args=(username,), daemon=True)
-            new_thread.start()
-            last_update_time = current_time
+                    print_center_top(stdscr, f"Viewing: {username}")
+                    print_center_one_up(stdscr, f"Live Downloads:")
+                    print_bold_center(stdscr, f"{downloads:,}")
+                    stdscr.refresh()
+                response = None
+            if (current_time - last_update_time) >= 10:
+                new_thread = threading.Thread(target=request_thread_task, args=(username,), daemon=True)
+                new_thread.start()
+                last_update_time = current_time
+
+    except KeyboardInterrupt:
+        stdscr.endwin()
+        os._exit(0)
